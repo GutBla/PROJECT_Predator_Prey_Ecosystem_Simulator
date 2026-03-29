@@ -1,152 +1,208 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
+  <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Simulador Ecosistema Presa-Depredador</title>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="style.css" />
-</head>
-<body>
+  </head>
+  <body>
     <div id="game-container">
-        <canvas id="simulation-canvas"></canvas>
-        
-        <div id="start-screen" class="screen modal">
-            <div class="panel">
-                <div class="title-container">
-                    <img src="Images/Title.png" alt="Título" class="title-image" />
-                </div>
-                <div class="btn-container">
-                    <button id="start-btn" class="btn">Iniciar Simulación</button>
-                    <button id="settings-btn" class="btn">Configuración</button>
-                    <button id="tutorial-btn" class="btn">Tutorial</button>
-                </div>
-                <div class="footer">v1.0 - Jala University Calculo 2</div>
+      <canvas id="simulation-canvas"></canvas>
+      <div id="start-screen" class="screen modal">
+        <div class="panel">
+          <div class="title-container">
+            <img src="assets/ui/Title.png" alt="Título" class="title-image" />
+          </div>
+          <div class="btn-container">
+            <button id="start-btn" class="btn">Iniciar Simulación</button>
+            <button id="settings-btn" class="btn">Configuración</button>
+            <button id="tutorial-btn" class="btn">Tutorial</button>
+          </div>
+          <div class="footer">v1.0 - Jala University Calculo 2</div>
+        </div>
+      </div>
+      <div id="settings-screen" class="screen modal hidden">
+        <div class="panel">
+          <h2>Configuración</h2>
+          <div class="param-row">
+            <span class="param-label">Presas iniciales:</span>
+            <input
+              type="range"
+              id="prey-slider"
+              min="10"
+              max="100"
+              value="50"
+            />
+            <span class="param-value" id="prey-value">50</span>
+          </div>
+          <div class="param-row">
+            <span class="param-label">Depredadores iniciales:</span>
+            <input
+              type="range"
+              id="predator-slider"
+              min="5"
+              max="50"
+              value="20"
+            />
+            <span class="param-value" id="predator-value">20</span>
+          </div>
+          <div class="param-row">
+            <span class="param-label">Velocidad:</span>
+            <input type="range" id="speed-slider" min="1" max="10" value="1" />
+            <span class="param-value" id="speed-value">1</span>
+          </div>
+          <div class="param-row">
+            <span class="param-label">α (Crec. presas):</span>
+            <input
+              type="range"
+              id="alpha-slider"
+              min="0.01"
+              max="0.2"
+              step="0.01"
+              value="0.1"
+            />
+            <span class="param-value" id="alpha-value">0.10</span>
+          </div>
+          <div class="param-row">
+            <span class="param-label">β (Tasa dep.):</span>
+            <input
+              type="range"
+              id="beta-slider"
+              min="0.001"
+              max="0.05"
+              step="0.001"
+              value="0.01"
+            />
+            <span class="param-value" id="beta-value">0.010</span>
+          </div>
+          <div class="param-row">
+            <span class="param-label">δ (Efic. dep.):</span>
+            <input
+              type="range"
+              id="delta-slider"
+              min="0.001"
+              max="0.1"
+              step="0.001"
+              value="0.01"
+            />
+            <span class="param-value" id="delta-value">0.010</span>
+          </div>
+          <div class="param-row">
+            <span class="param-label">γ (Mort. dep.):</span>
+            <input
+              type="range"
+              id="gamma-slider"
+              min="0.001"
+              max="0.1"
+              step="0.001"
+              value="0.05"
+            />
+            <span class="param-value" id="gamma-value">0.050</span>
+          </div>
+          <div class="btn-container">
+            <button id="apply-settings" class="btn">Aplicar</button>
+            <button id="settings-back" class="btn back-btn">Volver</button>
+          </div>
+        </div>
+      </div>
+      <div id="tutorial-screen" class="screen modal hidden">
+        <div class="panel">
+          <h2>Tutorial</h2>
+          <div class="tutorial-content">
+            <p>1) Ajusta parámetros en Configuración.</p>
+            <p>2) Haz clic en “Iniciar Simulación”.</p>
+            <p>3) P o Barra Espaciadora para pausar/reanudar.</p>
+            <p>4) + / - para aumentar/disminuir velocidad.</p>
+            <p>5) Clic izquierdo añade depredador.</p>
+            <p>6) Clic derecho añade presa.</p>
+            <p>7) R para reiniciar simulación.</p>
+          </div>
+          <div class="btn-container">
+            <button id="tutorial-back" class="btn back-btn">Volver</button>
+          </div>
+        </div>
+      </div>
+      <div id="info-box">
+        <div>Tiempo: <span id="time">0</span> días</div>
+        <div>
+          Presas: <span id="prey-count">0</span>
+          <img
+            src="assets/animals/bunnies/MiniBunny.gif"
+            class="animal-icon"
+            alt="Presa"
+          />
+        </div>
+        <div>
+          Depredadores: <span id="predator-count">0</span>
+          <img
+            src="assets/animals/lynxes/MiniLynx.gif"
+            class="animal-icon"
+            alt="Depredador"
+          />
+        </div>
+        <div>Pasto: <span id="grass-count">0</span>%</div>
+        <div>Velocidad: <span id="speed-indicator">1</span>x</div>
+      </div>
+      <div id="graph-container" class="hidden">
+        <canvas id="population-chart"></canvas>
+      </div>
+      <div id="controllers-box">
+        <div><strong>Controladores:</strong></div>
+        <div>+ : Aumentar velocidad</div>
+        <div>- : Disminuir velocidad</div>
+        <div>G: Mostrar / Ocultar grafico</div>
+        <div>P / ␣ : Pausar / Reanudar</div>
+        <div>R : Reiniciar</div>
+        <div>Clic Izq: Añadir Depredador</div>
+        <div>Clic Der: Añadir Presa</div>
+      </div>
+      <div id="pause-screen" class="screen modal hidden">
+        <div class="panel">
+          <h2>PAUSADO</h2>
+          <div class="btn-container">
+            <button id="resume-btn" class="btn">Reanudar</button>
+            <button id="restart-btn" class="btn">Reiniciar</button>
+            <button id="main-menu-btn" class="btn back-btn">
+              Menú Principal
+            </button>
+          </div>
+        </div>
+      </div>
+      <div id="summary-screen" class="screen modal hidden">
+        <div class="panel">
+          <h2>Resumen Final</h2>
+          <div class="tutorial-content">
+            <div id="extinction-message"></div>
+            <div>
+              Tiempo total: <strong><span id="total-time">0</span> días</strong>
             </div>
-        </div>
-
-        <div id="settings-screen" class="screen modal hidden">
-            <div class="panel">
-                <h2>Configuración</h2>
-                <div class="param-row">
-                    <span class="param-label">Presas iniciales:</span>
-                    <input type="range" id="prey-slider" min="10" max="100" value="50" />
-                    <span class="param-value" id="prey-value">50</span>
-                </div>
-                <div class="param-row">
-                    <span class="param-label">Depredadores iniciales:</span>
-                    <input type="range" id="predator-slider" min="5" max="50" value="20" />
-                    <span class="param-value" id="predator-value">20</span>
-                </div>
-                <div class="param-row">
-                    <span class="param-label">Velocidad:</span>
-                    <input type="range" id="speed-slider" min="1" max="10" value="1" />
-                    <span class="param-value" id="speed-value">1</span>
-                </div>
-                <div class="param-row">
-                    <span class="param-label">α (Crec. presas):</span>
-                    <input type="range" id="alpha-slider" min="0.01" max="0.2" step="0.01" value="0.1" />
-                    <span class="param-value" id="alpha-value">0.10</span>
-                </div>
-                <div class="param-row">
-                    <span class="param-label">β (Tasa dep.):</span>
-                    <input type="range" id="beta-slider" min="0.001" max="0.05" step="0.001" value="0.01" />
-                    <span class="param-value" id="beta-value">0.010</span>
-                </div>
-                <div class="param-row">
-                    <span class="param-label">δ (Efic. dep.):</span>
-                    <input type="range" id="delta-slider" min="0.001" max="0.1" step="0.001" value="0.01" />
-                    <span class="param-value" id="delta-value">0.010</span>
-                </div>
-                <div class="param-row">
-                    <span class="param-label">γ (Mort. dep.):</span>
-                    <input type="range" id="gamma-slider" min="0.001" max="0.1" step="0.001" value="0.05" />
-                    <span class="param-value" id="gamma-value">0.050</span>
-                </div>
-                <div class="btn-container">
-                    <button id="apply-settings" class="btn">Aplicar</button>
-                    <button id="settings-back" class="btn back-btn">Volver</button>
-                </div>
+          </div>
+          <div class="charts-container">
+            <div class="chart-wrapper">
+              <div class="chart-title">Dinámica Temporal</div>
+              <canvas id="temporal-chart"></canvas>
             </div>
-        </div>
-
-        <div id="tutorial-screen" class="screen modal hidden">
-            <div class="panel">
-                <h2>Tutorial</h2>
-                <div class="tutorial-content">
-                    <p>1) Ajusta parámetros en Configuración.</p>
-                    <p>2) Haz clic en “Iniciar Simulación”.</p>
-                    <p>3) P o Barra Espaciadora para pausar/reanudar.</p>
-                    <p>4) + / - para aumentar/disminuir velocidad.</p>
-                    <p>5) Clic izquierdo añade depredador.</p>
-                    <p>6) Clic derecho añade presa.</p>
-                    <p>7) R para reiniciar simulación.</p>
-                </div>
-                <div class="btn-container">
-                    <button id="tutorial-back" class="btn back-btn">Volver</button>
-                </div>
+            <div class="chart-wrapper">
+              <div class="chart-title">Espacio de Fase</div>
+              <canvas id="phase-chart"></canvas>
             </div>
+          </div>
+          <div class="btn-container">
+            <button id="summary-restart" class="btn">Reiniciar</button>
+            <button id="summary-menu" class="btn back-btn">
+              Menú Principal
+            </button>
+          </div>
         </div>
-
-        <div id="info-box">
-            <div>Tiempo: <span id="time">0</span> días</div>
-            <div>Presas: <span id="prey-count">0</span> <img src="Images/MiniBunny.gif" class="animal-icon" alt="Presa"></div>
-            <div>Depredadores: <span id="predator-count">0</span> <img src="Images/MiniLynx.gif" class="animal-icon" alt="Depredador"></div>
-            <div>Pasto: <span id="grass-count">0</span>%</div>
-            <div>Velocidad: <span id="speed-indicator">1</span>x</div>
-        </div>
-
-        <div id="graph-container" class="hidden">
-            <canvas id="population-chart"></canvas>
-        </div>
-
-        <div id="controllers-box">
-            <div><strong>Controladores:</strong></div>
-            <div>+ : Aumentar velocidad</div>
-            <div>- : Disminuir velocidad</div>
-            <div>G: Mostrar / Ocultar grafico</div>
-            <div>P / ␣ : Pausar / Reanudar</div>
-            <div>R : Reiniciar</div>
-            <div>Clic Izq: Añadir Depredador</div>
-            <div>Clic Der: Añadir Presa</div>
-        </div>
-
-        <div id="pause-screen" class="screen modal hidden">
-            <div class="panel">
-                <h2>PAUSADO</h2>
-                <div class="btn-container">
-                    <button id="resume-btn" class="btn">Reanudar</button>
-                    <button id="restart-btn" class="btn">Reiniciar</button>
-                    <button id="main-menu-btn" class="btn back-btn">Menú Principal</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="summary-screen" class="screen modal hidden">
-            <div class="panel">
-                <h2>Resumen Final</h2>
-                <div class="tutorial-content">
-                    <div id="extinction-message"></div>
-                    <div>Tiempo total: <strong><span id="total-time">0</span> días</strong></div>
-                </div>
-                <div class="charts-container">
-                    <div class="chart-wrapper">
-                        <div class="chart-title">Dinámica Temporal</div>
-                        <canvas id="temporal-chart"></canvas>
-                    </div>
-                    <div class="chart-wrapper">
-                        <div class="chart-title">Espacio de Fase</div>
-                        <canvas id="phase-chart"></canvas>
-                    </div>
-                </div>
-                <div class="btn-container">
-                    <button id="summary-restart" class="btn">Reiniciar</button>
-                    <button id="summary-menu" class="btn back-btn">Menú Principal</button>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
+    <script src="sprite-animator.js" defer></script>
     <script src="script.js" defer></script>
     <script src="simulation.js" defer></script>
-</body>
+  </body>
 </html>
