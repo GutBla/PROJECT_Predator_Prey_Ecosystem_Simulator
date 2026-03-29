@@ -61,13 +61,13 @@ Sigue estos pasos para ejecutar el proyecto en tu entorno local:
 1. Clona el repositorio:
     
     ```
-    git clone https://github.com/GutBla/PROJECT_Predator_Prey_Ecosystem_Symulator.git
+    git clone https://github.com/GutBla/PROJECT_Predator_Prey_Ecosystem_Simulator.git
     ```
     
 2. Accede al directorio del proyecto:
     
     ```
-    cd PROJECT_Predator_Prey_Ecosystem_Symulator
+    cd PROJECT_Predator_Prey_Ecosystem_Simulator
     ```
     
 3. Abre el archivo principal:
@@ -181,7 +181,7 @@ $$
 
 Ambos valores se restringen a $\geq 0$ para evitar poblaciones negativas. Los resultados acumulados se almacenan en el arreglo `lvData` y se grafican como **línea discontinua** superpuesta al comportamiento real de los agentes, permitiendo una comparación directa entre la teoría y la dinámica emergente.
 
-![Metodo_de_Euler.png](Metodo_de_Euler.png)
+![Metodo_de_Euler.png](Images/Metodo_de_Euler.png)
 
 ## Simulación basada en agentes
 
