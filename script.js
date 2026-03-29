@@ -4,6 +4,7 @@ const tutorialScreen = document.getElementById("tutorial-screen");
 const graphContainer = document.getElementById("graph-container");
 const pauseScreen = document.getElementById("pause-screen");
 const summaryScreen = document.getElementById("summary-screen");
+
 const startBtn = document.getElementById("start-btn");
 const settingsBtn = document.getElementById("settings-btn");
 const tutorialBtn = document.getElementById("tutorial-btn");
@@ -15,6 +16,7 @@ const restartBtn = document.getElementById("restart-btn");
 const mainMenuBtn = document.getElementById("main-menu-btn");
 const summaryRestart = document.getElementById("summary-restart");
 const summaryMenu = document.getElementById("summary-menu");
+
 const preySlider = document.getElementById("prey-slider");
 const predatorSlider = document.getElementById("predator-slider");
 const speedSlider = document.getElementById("speed-slider");
@@ -22,6 +24,7 @@ const alphaSlider = document.getElementById("alpha-slider");
 const betaSlider = document.getElementById("beta-slider");
 const deltaSlider = document.getElementById("delta-slider");
 const gammaSlider = document.getElementById("gamma-slider");
+
 const preyValue = document.getElementById("prey-value");
 const predatorValue = document.getElementById("predator-value");
 const speedValue = document.getElementById("speed-value");
@@ -29,6 +32,7 @@ const alphaValue = document.getElementById("alpha-value");
 const betaValue = document.getElementById("beta-value");
 const deltaValue = document.getElementById("delta-value");
 const gammaValue = document.getElementById("gamma-value");
+
 const canvas = document.getElementById("simulation-canvas");
 const ctx = canvas.getContext("2d");
 canvas.width = 1280;
@@ -60,17 +64,16 @@ function loadImage(img, src) {
   });
 }
 
-const preyFramePaths = [];
-for (let i = 0; i < 10; i++) {
-  const idx = i.toString().padStart(2, "0");
-  preyFramePaths.push(`assets/animals/bunnies/Sprite/sprite_${idx}.png`);
-}
-
-const predatorFramePaths = [];
-for (let i = 0; i < 15; i++) {
-  const idx = i.toString().padStart(2, "0");
-  predatorFramePaths.push(`assets/animals/lynxes/Sprite/sprite_${idx}.png`);
-}
+const preyFramePaths = Array.from(
+  { length: 10 },
+  (_, i) =>
+    `assets/animals/bunnies/Sprite/sprite_${i.toString().padStart(2, "0")}.png`,
+);
+const predatorFramePaths = Array.from(
+  { length: 15 },
+  (_, i) =>
+    `assets/animals/lynxes/Sprite/sprite_${i.toString().padStart(2, "0")}.png`,
+);
 
 Promise.all([
   loadImage(images.lightGrass, "assets/backgrounds/light_grass.png"),
@@ -175,57 +178,65 @@ function initUI() {
     () => (gammaValue.textContent = parseFloat(gammaSlider.value).toFixed(3)),
   );
 
-  window.addEventListener("keydown", (e) => {
-    if (!simulationRunning) return;
-    if (e.key === "p" || e.key === "P" || e.code === "Space") {
-      simulationPaused = !simulationPaused;
-      if (simulationPaused) {
+  window.addEventListener("keydown", handleKeyDown);
+  canvas.addEventListener("mousedown", handleCanvasClick);
+  canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+}
+
+function handleKeyDown(e) {
+  if (!sim.running) return;
+  switch (e.key) {
+    case "p":
+    case "P":
+    case " ":
+      sim.paused = !sim.paused;
+      if (sim.paused) {
         pauseScreen.classList.remove("hidden");
-        cancelAnimationFrame(animationFrameId);
+        cancelAnimationFrame(sim.animationFrameId);
       } else {
         pauseScreen.classList.add("hidden");
         loop();
       }
-    } else if (e.key === "+") {
+      break;
+    case "+":
       changeSpeed(1);
-    } else if (e.key === "-") {
+      break;
+    case "-":
       changeSpeed(-1);
-    } else if (e.key === "r" || e.key === "R") {
+      break;
+    case "r":
+    case "R":
       restartSimulation();
-    } else if (e.key === "g" || e.key === "G") {
+      break;
+    case "g":
+    case "G":
       toggleGraphs();
-    }
-  });
+      break;
+  }
+}
 
-  canvas.addEventListener("mousedown", (e) => {
-    if (!simulationRunning || simulationPaused) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    if (e.button === 0) {
-      predatorArray.push(new Predator(x - 16, y - 16));
-      addEffect(x, y, "spawn");
-    } else if (e.button === 2) {
-      preyArray.push(new Prey(x - 16, y - 16));
-      addEffect(x, y, "spawn");
-    }
-  });
-  canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+function handleCanvasClick(e) {
+  if (!sim.running || sim.paused) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  if (e.button === 0) {
+    sim.predatorArray.push(new Predator(x - 16, y - 16));
+    addEffect(x, y, "spawn");
+  } else if (e.button === 2) {
+    sim.preyArray.push(new Prey(x - 16, y - 16));
+    addEffect(x, y, "spawn");
+  }
 }
 
 function changeSpeed(delta) {
-  simulationSpeed = Math.min(10, Math.max(1, simulationSpeed + delta));
-  speedSlider.value = simulationSpeed;
-  speedValue.textContent = simulationSpeed;
+  sim.speed = Math.min(10, Math.max(1, sim.speed + delta));
+  speedSlider.value = sim.speed;
+  speedValue.textContent = sim.speed;
 }
 
 function toggleGraphs() {
-  const isGraphHidden = graphContainer.classList.contains("hidden");
-  if (isGraphHidden) {
-    graphContainer.classList.remove("hidden");
-  } else {
-    graphContainer.classList.add("hidden");
-  }
+  graphContainer.classList.toggle("hidden");
   if (!summaryScreen.classList.contains("hidden")) {
     summaryScreen.classList.add("hidden");
   }
@@ -233,12 +244,8 @@ function toggleGraphs() {
 
 function startSimulation() {
   showScreen(null);
-  simulationRunning = true;
-  simulationPaused = false;
-  extinctionTimer = 0;
-  time = 0;
-  populationData.length = 0;
-  lvData.length = 0;
+  sim.running = true;
+  sim.paused = false;
   document.getElementById("info-box").classList.remove("hidden");
   graphContainer.classList.remove("hidden");
   initSimulation();
@@ -246,30 +253,30 @@ function startSimulation() {
 }
 
 function applySettings() {
-  initialPrey = parseInt(preySlider.value);
-  initialPredator = parseInt(predatorSlider.value);
-  simulationSpeed = parseInt(speedSlider.value);
-  alpha = parseFloat(alphaSlider.value);
-  beta = parseFloat(betaSlider.value);
-  delta = parseFloat(deltaSlider.value);
-  gamma = parseFloat(gammaSlider.value);
+  sim.initialPrey = parseInt(preySlider.value);
+  sim.initialPredator = parseInt(predatorSlider.value);
+  sim.speed = parseInt(speedSlider.value);
+  sim.alpha = parseFloat(alphaSlider.value);
+  sim.beta = parseFloat(betaSlider.value);
+  sim.delta = parseFloat(deltaSlider.value);
+  sim.gamma = parseFloat(gammaSlider.value);
   showScreen(startScreen);
 }
 
 function resumeSimulation() {
-  simulationPaused = false;
+  sim.paused = false;
   pauseScreen.classList.add("hidden");
   loop();
 }
 
 function restartSimulation() {
-  cancelAnimationFrame(animationFrameId);
+  cancelAnimationFrame(sim.animationFrameId);
   startSimulation();
 }
 
 function returnToMainMenu() {
-  cancelAnimationFrame(animationFrameId);
-  simulationRunning = false;
-  simulationPaused = false;
+  cancelAnimationFrame(sim.animationFrameId);
+  sim.running = false;
+  sim.paused = false;
   showScreen(startScreen);
 }
