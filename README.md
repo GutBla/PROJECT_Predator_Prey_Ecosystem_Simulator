@@ -1,4 +1,4 @@
-# Predator Prey Ecosystem Symulator 🐇🦊🌿
+# Predator Prey Ecosystem Simulator 🐇🦊🌿
 
 [![PROJECT](https://img.shields.io/badge/-PROJECT-0d1117.svg?logo=googlekeep&style=popout&logoColor=white)](#)
 [![HTML](https://img.shields.io/badge/HTML-%23E34F26.svg?logo=html5&logoColor=white&style=popout&)](#)
